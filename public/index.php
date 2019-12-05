@@ -23,7 +23,7 @@ $app = new \Slim\App;
  * GET
  */
 $app->get('/', function (Request $request, Response $response, array $args) {
-    $body = [];
+    $bodyOut = [];
 
     $peticiones = new peticion($request, $response, $args);
 
@@ -42,33 +42,95 @@ $app->get('/', function (Request $request, Response $response, array $args) {
  * POST
  */
 $app->post('/', function (Request $request, Response $response, array $args) {
-    $body = $request->getParsedBody();
-    if ($request->hasHeader('PHP_AUTH_USER') || $request->hasHeader('PHP_AUTH_PW')) {
-        //$body = $request->getHeaders();
-        $body["HTTP_AUTHORIZATION"] = $request->getHeader("HTTP_AUTHORIZATION")[0]; //Basic
-        $body["explode"] = base64_decode(explode(" ", $body["HTTP_AUTHORIZATION"])[1]);
-        $body["Datos"] = array(
-            'usuario' => explode(":", $body["explode"])[0],
-            'pass' => explode(":", $body["explode"])[1],
-        );
-    }
-    return $response
-        ->withHeader('Content-type', 'application/json')
-        ->withStatus(200)
-        ->withJson($body);
+
+    $bodyIn = [];
+    $bodyOut = [];
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request) {
+        #logica de la funcion, entrega el arreglo a devolver por la API
+
+        $bodyIn = $request->getParsedBody();
+
+        $bodyOut = $bodyIn;
+
+        return $bodyOut;
+    };
+
+    return $peticiones->conTokenPost($func($request), true, null);
+
+    // if ($request->hasHeader('PHP_AUTH_USER') || $request->hasHeader('PHP_AUTH_PW')) {
+    //     //$body = $request->getHeaders();
+    //     $body["HTTP_AUTHORIZATION"] = $request->getHeader("HTTP_AUTHORIZATION")[0]; //Basic
+    //     $body["explode"] = base64_decode(explode(" ", $body["HTTP_AUTHORIZATION"])[1]);
+
+    //     $body["Datos"] = array(
+    //         'usuario' => explode(":", $body["explode"])[0],
+    //         'pass' => explode(":", $body["explode"])[1],
+    //     );
+    // }
+    // return $response
+    //     ->withHeader('Content-type', 'application/json')
+    //     ->withStatus(200)
+    //     ->withJson($body);
 });
 
 /**
  * PUT
  */
 $app->put('/', function (Request $request, Response $response, array $args) {
+    $bodyIn = [];
+    $bodyOut = [];
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request) {
+        #logica de la funcion, entrega el arreglo a devolver por la API
+
+        $bodyIn = $request->getParsedBody();
+
+        $bodyOut = $bodyIn;
+
+        return $bodyOut;
+    };
+
+    return $peticiones->conTokenPost($func($request), true, null);
 
 });
 
 /**
  * DELETE
+ * 
+ * 
+ * 
+ * 
  */
-$app->delete('/', function (Request $request, Response $response, array $args) {
+// $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
+//     $name = $args['name'];
+//     $response->getBody()->write("Hello, $name");
+//     return $response;
+// });
+// $app->delete('/{id}', function ($request, $response, $args) {
+//     // Delete book identified by $args['id']
+// });
+$app->delete('/libros/{id}', function (Request $request, Response $response, array $args) {
+    $bodyIn = [];
+    $bodyOut = [];
+    $id = $args['id'];
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request, $id) {
+        #logica de la funcion, entrega el arreglo a devolver por la API
+        $bodyIn = $request->getParsedBody();
+
+        $bodyOut = 'El elemento $id fue borrado.';
+
+        return $bodyOut;
+    };
+
+    return $peticiones->conTokenPost($func($request, $id), true, null);
 
 });
 ########################## END ##########################

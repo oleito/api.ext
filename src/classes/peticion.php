@@ -19,7 +19,7 @@ class peticion
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->setToken("datosUsuario"),
+                'token' => $token->updateToken("datosUsuario"),
                 'body' => $funcionAnonina,
             );
 
@@ -33,35 +33,40 @@ class peticion
                 ->withStatus(401);
         }
     }
-    public function conTokenPost($funcionAnonina)
+
+    public function conTokenPost($funcionAnonina, $status, $code)
     {
-        token=new token;
-        if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
+        $token = new token;
+        if (!$status) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus($code);
+        } else if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->setToken("datosUsuario"),
+                'token' => $token->updateToken("datosUsuario"),
                 'body' => $funcionAnonina,
             );
 
             return $this->response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200)
+                ->withStatus(201)
                 ->withJson($body);
         } else {
             return $this->response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(401);
-        } 
+        }
     }
     public function conTokenPut($funcionAnonina)
     {
-        token=new token;
+        $token = new token;
         if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->setToken("datosUsuario"),
+                'token' => $token->updateToken("datosUsuario"),
                 'body' => $funcionAnonina,
             );
 
@@ -73,16 +78,16 @@ class peticion
             return $this->response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(401);
-        } 
+        }
     }
     public function conTokenDelete($funcionAnonina)
     {
-        token=new token;
+        $token = new token;
         if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->setToken("datosUsuario"),
+                'token' => $token->updateToken("datosUsuario"),
                 'body' => $funcionAnonina,
             );
 
@@ -94,10 +99,9 @@ class peticion
             return $this->response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(401);
-        } 
+        }
     }
     /* *************************************************** */
-
 
     public function sinToken($funcionAnonina)
     {

@@ -28,7 +28,7 @@ class token
      * access_level
      */
     public function setToken($usuario)
-    {        
+    {
         return "Token de prueba";
         try {
             //Define los Headers del token
@@ -61,9 +61,7 @@ class token
     public function checkToken($token)
     {
 
-       return true;################ dev prop
-
-
+        return true; ################ dev prop
 
         try {
             //Divide el Token en 3 Partes
@@ -98,6 +96,7 @@ class token
      */
     public function updateToken($token)
     {
+        return "Token de prueba";
         try {
             //Divide el Token en 3 Partes
             $t = explode(".", $token);
@@ -117,7 +116,7 @@ class token
             return $newToken;
         } catch (\Throwable $th) {
             return false;
-            
+
         }
     }
 }
