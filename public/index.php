@@ -25,16 +25,16 @@ $app = new \Slim\App;
 $app->get('/', function (Request $request, Response $response, array $args) {
     $body = [];
 
-    $peticiones = new peticion($request, $response);
+    $peticiones = new peticion($request, $response, $args);
 
     $func = function ($request) {
-
+        #logica de la funcion, entrega el arreglo a devolver por la API
         $resp = array('respuesta' => "soy una repuesta");
 
         return $resp;
     };
 
-    return $peticiones->conToken($func($request));
+    return $peticiones->conTokenGet($func($request));
 
 });
 
