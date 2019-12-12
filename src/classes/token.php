@@ -10,7 +10,7 @@ class token
     private $secret = 'postventa2019';
     private $timeOut = 10;
     private $expire = null;
-    /* 
+    /*
      */
     public function __construct()
     {
@@ -21,12 +21,13 @@ class token
     {
         return rtrim(strtr(base64_encode($data), "+/", "-_"), "=");
     }
+
     /**
      * Recibe un arreglo y devuelve un token que contiene los datos del usuario
      */
     public function setToken($usuario)
     {
-        return "Token de prueba";
+        //return "Token de prueba";
         try {
             //Define los Headers del token
             $header = self::base64url_encode(json_encode([
@@ -36,7 +37,7 @@ class token
             //Define el payload y carga los datos del usuario
             $payload = self::base64url_encode(json_encode([
                 "expire" => $this->expire, //esta linea dejarla asi, xq sino rompe
-                "id" => $usuario
+                "user" => $usuario,
             ]));
             $signature = self::base64url_encode(hash_hmac("sha256", $header . "." . $payload, $this->secret, true));
             //Construye el token = header+paylad+signature
@@ -57,13 +58,10 @@ class token
 
         return true; ################ dev prop
 
-
         /**
-         * ESTA FUNCION DEBE EVALUAR SI EL TOKEN ES VALIDO 
+         * ESTA FUNCION DEBE EVALUAR SI EL TOKEN ES VALIDO
          * TAMBIEN SI EL USUARIO ESTA AUTORIZADO PARA REALIZAR LA CONSULTA
          */
-
-         
 
         try {
             //Divide el Token en 3 Partes
@@ -98,7 +96,7 @@ class token
      */
     public function updateToken($token)
     {
-        return "Token de prueba";
+        //return "Token de prueba";
         try {
             //Divide el Token en 3 Partes
             $t = explode(".", $token);

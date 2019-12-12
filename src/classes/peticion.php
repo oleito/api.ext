@@ -19,7 +19,7 @@ class peticion
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->updateToken("datosUsuario"),
+                'token' => $token->updateToken($this->request->getHeader("HTTP_TOKEN")[0]),
                 'body' => $funcionAnonina,
             );
 
@@ -45,7 +45,7 @@ class peticion
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->updateToken("datosUsuario"),
+                'token' => $token->updateToken($this->request->getHeader("HTTP_TOKEN")[0]),
                 'body' => $funcionAnonina,
             );
 
@@ -59,6 +59,7 @@ class peticion
                 ->withStatus(401);
         }
     }
+
     public function conTokenPut($funcionAnonina)
     {
         $token = new token;
@@ -66,7 +67,7 @@ class peticion
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->updateToken("datosUsuario"),
+                'token' => $token->updateToken($this->request->getHeader("HTTP_TOKEN")[0]),
                 'body' => $funcionAnonina,
             );
 
@@ -80,6 +81,7 @@ class peticion
                 ->withStatus(401);
         }
     }
+
     public function conTokenDelete($funcionAnonina)
     {
         $token = new token;
@@ -87,7 +89,7 @@ class peticion
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
-                'token' => $token->updateToken("datosUsuario"),
+                'token' => $token->updateToken($this->request->getHeader("HTTP_TOKEN")[0]),
                 'body' => $funcionAnonina,
             );
 
@@ -101,113 +103,59 @@ class peticion
                 ->withStatus(401);
         }
     }
+
     /* *************************************************** */
-
-    public function sinToken($funcionAnonina)
+    public function sinTokenPost($funcionAnonina, $status, $code)
     {
-
-    }
-
-    public function getRequest($anonima)
-    {
-        //declaracion de variables.
-        $tokenIn = null;
-        $tokenOut = null;
-        $mensajesPendientes = null;
-        $body = null;
-        $tokenIn = $this->request->getHeaderLine('token');
-        if ($tokenIn != "" && $tokenIn) {
-            $token = new token();
-            if ($token->checkToken($tokenIn)) {
-                //una vez aprobado el token, podemos seguir operando.
-                //trata de hacer la consulta correspondiente
-                //en caso de error, devuelve el informe correspo
-                try {
-                    /** Asigna al $body el contenido de la funcion anonima**/
-                    $body = $anonima;
-                    /* Busca nuevos mensajes pendientes. */
-                    //$mensajesPendientes = new mensajesPendientes();
-                    //$mensajesPendientes = $mensajesPendientes->getMensajesPendientes();
-                    $msgs = array();
-                    array_push($msgs, ['from' => 'lean', 'msg' => "chau"]);
-                    array_push($msgs, ['from' => 'x', 'msg' => "d"]);
-                    $tokenOut = $token->updateToken($tokenIn);
-                    $resp = array(
-                        'token' => $tokenOut,
-                        #'msjs' => $msgs,
-                        #'msjQ' => count($msgs),
-                        'body' => $body,
-                    );
-                    //$resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-                    $resp = json_encode($resp);
-                    return $this->response
-                        ->withStatus(200)
-                        ->write($resp);
-                    //->write($resp);
-                } catch (PDOException $e) {
-                    $resp = array(
-                        'token' => null,
-                        'body' => print_r($e->getMessage()),
-                    );
-                    $resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-                    return $this->response
-                        ->withStatus(500)
-                        ->write($resp);
-                }
-            } else {
-                $resp = array(
-                    'token' => null,
-                    'body' => null,
-                );
-                $resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-                return $this->response
-                    ->withStatus(401)
-                    ->write(null);
-            }
+        if (!$status) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus($code);
         } else {
-            $resp = array(
+            if ($this->request->hasHeader('HTTP_TOKEN')) {
+                $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
+            }
+
+            $body = array(
                 'token' => null,
-                'body' => null,
+                'body' => $funcionAnonina,
             );
-            $resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
             return $this->response
-                ->withStatus(402)
-                ->write(null);
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201)
+                ->withJson($body);
         }
     }
-    public function getRequestSinToken($anonima)
+
+    public function sinTokenLogin($funcionAnonina, $status, $code)
     {
-        //declaracion de variables.
-        try {
-            /** Asigna al $body el contenido de la funcion anonima**/
-            $body = $anonima;
-            /* Busca nuevos mensajes pendientes. */
-            //$mensajesPendientes = new mensajesPendientes();
-            //$mensajesPendientes = $mensajesPendientes->getMensajesPendientes();
-            $msgs = array();
-            array_push($msgs, ['from' => 'lean', 'msg' => "chau"]);
-            array_push($msgs, ['from' => 'x', 'msg' => "d"]);
-            $resp = array(
-                'token' => 'SinToken',
-                #'msjs' => $msgs,
-                #'msjQ' => count($msgs),
-                'body' => $body,
-            );
-            //$resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            $resp = json_encode($resp);
+        $token = new token;
+        if (!$status) {
             return $this->response
-                ->withStatus(200)
-                ->write($resp);
-            //->write($resp);
-        } catch (PDOException $e) {
-            $resp = array(
-                'token' => null,
-                'body' => print_r($e->getMessage()),
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus($code);
+        } else {
+            $usuario = array(
+                'id' => 036,
+                'nombre' => 'Leandro',
+                'access' => [
+                    01,
+                    02,
+                    07,
+                ],
             );
-            $resp = json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+            $body = array(
+                'token' => $token->setToken($usuario),
+                'body' => $funcionAnonina,
+            );
+
             return $this->response
-                ->withStatus(500)
-                ->write($resp);
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201)
+                ->withJson($body);
         }
     }
+
 }
