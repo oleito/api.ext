@@ -5,6 +5,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 require '../vendor/autoload.php';
 require '../src/classes/token.php';
 require '../src/classes/peticion.php';
+require '../src/classes/mysql.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
@@ -109,6 +110,7 @@ $app->post('/login', function (Request $request, Response $response, array $args
             return true;
         }
         return false;
+
     };
 
     $func = function ($request) {
@@ -117,6 +119,15 @@ $app->post('/login', function (Request $request, Response $response, array $args
         $bodyIn = $request->getParsedBody();
         //$bodyOut = $bodyIn;
         $bodyOut = [];
+
+        //////////
+        $mysql = new mysql;
+        if ($mysql->conectar()) {
+            $bodyOut['dbMsj'] = 'parece que todo OK';
+        } else {
+            $bodyOut['dbMsj'] = 'parece que todo mal';
+        }
+        //////////
 
         return $bodyOut;
     };
@@ -130,4 +141,3 @@ $app->post('/login', function (Request $request, Response $response, array $args
 });
 
 $app->run();
-
