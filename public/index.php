@@ -88,27 +88,46 @@ $app->put('/', function (Request $request, Response $response, array $args) {
     return $peticiones->conTokenPost($func($request), true, null);
 });
 
-/**
- * DELETE
- */
+########################## END ##########################
 
-$app->delete('/{id}', function (Request $request, Response $response, array $args) {
+$app->post('/login', function (Request $request, Response $response, array $args) {
+
     $bodyIn = [];
     $bodyOut = [];
-    $id = $args['id'];
 
     $peticiones = new peticion($request, $response, $args);
 
-    $func = function ($request, $id) {
+    $bodyIn = $request->getParsedBody();
+    $userName = $bodyIn['user']['userName'];
+    $userPassword = $bodyIn['user']['userPassword'];
+
+    function verificarUsuario($userName, $userPassword)
+    {
+        //Verifia si las credenciales enviadas son correctas.
+        //Conectarse a la base de datos,
+        if ($userName === 'oleito' && $userPassword === '1234') {
+            return true;
+        }
+        return false;
+    };
+
+    $func = function ($request) {
         #logica de la funcion, entrega el arreglo a devolver por la API
+
         $bodyIn = $request->getParsedBody();
-        $bodyOut = 'El elemento ' . $id . ' fue borrado.';
+        //$bodyOut = $bodyIn;
+        $bodyOut = [];
 
         return $bodyOut;
     };
 
-    return $peticiones->conTokenPost($func($request, $id), true, null);
+    if (verificarUsuario($userName, $userPassword)) {
+        return $peticiones->sinTokenLogin($func($request), true, null);
+    } else {
+        return $peticiones->sinTokenLogin($func($request), false, 401);
+    }
+
 });
-########################## END ##########################
 
 $app->run();
+
