@@ -123,11 +123,36 @@ $app->post('/login', function (Request $request, Response $response, array $args
         //////////
         $mysql = new mysql;
         if ($mysql->conectar()) {
+
+            $password = '1q2w3eparisNadarisca32';
+
             $bodyOut['dbMsj'] = 'parece que todo OK';
+            //$bodyOut['Insertar'] = $mysql->insertar("usuario", "null, 'usr@dom'");
+
+            //  $bodyOut['update'] = $mysql->actualizar("usuario", "
+            //      usuario_username = 'juan.quiroga@parisautos.com.ar' ,
+            //      usuario_password = 'soyUnaClave',
+            //      usuario_nombre = 'Juan Pablo',
+            //      usuario_apellido = 'Quiroga'
+            //      ", "idusuario = 4");
+            //$newPass = password_hash($password, PASSWORD_BCRYPT);
+
+            //$bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 1");
+
+            //$bodyOut['buscar'] = $mysql->buscar('usuario', 'idusuario > 0');
+            // $aux = $mysql->buscar('usuario', "usuario_username = 'sistemas@parisautos.com.ar'");
+
+            // $bodyOut['buscar'] = $aux[0]['usuario_password'];
+            // $bodyOut['logIn'] = password_verify($password, $aux[0]['usuario_password']);
+
+            //$bodyOut['borrar'] = $mysql->borrar('usuario', 'idusuario = 3');
+
+            $bodyOut['Listar'] = $mysql->listar('usuario');
         } else {
             $bodyOut['dbMsj'] = 'parece que todo mal';
         }
         //////////
+
 
         return $bodyOut;
     };
