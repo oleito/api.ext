@@ -2,31 +2,36 @@
 
 class mysql
 {
-    //datos para la conexion con servidor MySQL.
+    //datos para la mysqli con servidor MySQL.
     //Mover a otra clase.
-    private $hostName = 'parisautos.com.ar';
-    private $userName = 'parisaut_orionusr';
-    private $userPassword = 'Be1sIByM7HR@';
-    private $dataBaseName = 'parisaut_chapa';
+    private $DBhostName = 'parisautos.com.ar';
+    private $DBuserName = 'parisaut_orionusr';
+    private $DBuserPassword = 'Be1sIByM7HR@';
+    private $DBdataBaseName = 'parisaut_chapa';
 
-    public $conexion;
+    public $mysqli;
 
     public function __construct()
     {
     }
 
+    /**
+     * Conecta a la base de datos
+     *
+     * @return true si la conexion es exitosa
+     */
     public function conectar()
     {
         try {
-            @$this->conexion = new mysqli(
-                $this->hostName,
-                $this->userName,
-                $this->userPassword,
-                $this->dataBaseName
+            @$this->mysqli = new mysqli(
+                $this->DBhostName,
+                $this->DBuserName,
+                $this->DBuserPassword,
+                $this->DBdataBaseName
             ) or die(mysql_error());
-            @$this->conexion->set_charset("utf8");
+            @$this->mysqli->set_charset("utf8");
 
-            if ($this->conexion->connect_errno) {
+            if ($this->mysqli->connect_errno) {
                 return false;
             }
             return true;
@@ -37,46 +42,107 @@ class mysql
 
     }
 
-    public function insertar($tabla, $datos)//"usuarios","'PAPA','JUAN PABLO','foto.jpg'"
+    /**
+     * Inserta un valor en una base de datos
+     *
+     * @param [text] $tabla
+     * @param [array] $datos
+     * @return true si inserta correctamente
+     */
+    public function insertar($tabla, $datos) #"usuario", "null, 'usr@dom'"
+
     {
-        if ($this->conexion->query("INSERT INTO $tabla VALUES ($datos)")) {
+        if ($this->mysqli->query("INSERT INTO $tabla VALUES ($datos)")) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    public function buscar($tabla, $condicion) //"usuarios","1"
+    /**
+     * Busca registros segun el criterio dado
+     *
+     * @param [text] $tabla
+     * @param [text] $condicion
+     * @return array resultados de la busqueda
+     */
+    public function buscar($tabla, $condicion) #'usuario', 'idusuario > 0'
+
     {
-        $resultado = $this->conexion->query("SELECT * FROM $tabla WHERE $condicion");
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
-            return $resultado->fetch_all(mysqli_assoc);
+            return $resultado->fetch_all(MYSQLI_ASSOC);
         }
+        return false;
     }
 
-    public function buscarUnitario($tabla, $condicion) //"usuarios","1"
+        /**
+     * Busca registros segun el criterio dado
+     *
+     * @param [text] $tabla
+     * @param [text] $condicion
+     * @return array resultados de la busqueda
+     */
+    public function buscarUnitario($tabla, $condicion) #'usuario', 'idusuario > 0'
+
     {
-        $resultado = $this->conexion->query("SELECT * FROM $tabla WHERE $condicion  LIMIT 1");
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
-            return $resultado->fetch_all(mysqli_assoc);
+            return $resultado->fetch_all(MYSQLI_ASSOC);
         }
+        return false;
     }
 
-    public function actualizar($tabla, $campos, $condicion)//"usuarios","nombre='ANAMARIA'","id=1"
+    /**
+     * Lista la base de datos completa
+     *
+     * @param [type] $tabla
+     * @return array todos los registros
+     */
+    public function listar($tabla) //"usuarios","1"
+
     {
-        $resultado = $this->conexion->query("UPDATE $tabla SET $campos WHERE $condicion");
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla");
+        if ($resultado) {
+            return $resultado->fetch_all(MYSQLI_ASSOC);
+        }
+        return false;
+    }
+
+
+    /**
+     * Actualiza un registro
+     *
+     * @param [string] $tabla
+     * @param [string] $campos
+     * @param [string] $condicion
+     * @return true si logro actualizar
+     */
+    public function actualizar($tabla, $campos, $condicion) #"usuario", " usuario_username = 'j.q@p.com.ar', ","idusuario = 4"
+
+    {
+        $resultado = $this->mysqli->query("UPDATE $tabla SET $campos WHERE $condicion");
+        //echo ("UPDATE $tabla SET $campos WHERE $condicion");
         if ($resultado) {
             return true;
         }
         return false;
     }
 
-    public function borrar($tabla, $condicion)//"usuarios","id=1"
+    /**
+     * Borra uno o mas registros segun la condicion.
+     *
+     * @param [string] $tabla
+     * @param [string] $condicion
+     * @return void
+     */
+    public function borrar($tabla, $condicion) #'usuario', 'idusuario = 3'
+
     {
-        $resultado = $this->conexion->query("DELETE FROM $tabla WHERE $condicion") or die($this->conexion->error);
+        $resultado = $this->mysqli->query("DELETE FROM $tabla WHERE $condicion") or die($this->mysqli->error);
         if ($resultado) {
             return true;
         }
         return false;
     }
+
 }
