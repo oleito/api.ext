@@ -123,7 +123,9 @@ $app->post('/login', function (Request $request, Response $response, array $args
         //////////
         $mysql = new mysql;
         if ($mysql->conectar()) {
+
             $bodyOut['dbMsj'] = 'parece que todo OK';
+            $bodyOut['resp'] = $mysql->listar('usuario');
         } else {
             $bodyOut['dbMsj'] = 'parece que todo mal';
         }

@@ -2,14 +2,14 @@
 
 class mysql
 {
-    //datos para la conexion con servidor MySQL.
+    //datos para la mysqli con servidor MySQL.
     //Mover a otra clase.
     private $hostName = 'parisautos.com.ar';
     private $userName = 'parisaut_orionusr';
     private $userPassword = 'Be1sIByM7HR@';
     private $dataBaseName = 'parisaut_chapa';
 
-    public $conexion;
+    public $mysqli;
 
     public function __construct()
     {
@@ -18,15 +18,15 @@ class mysql
     public function conectar()
     {
         try {
-            @$this->conexion = new mysqli(
+            @$this->mysqli = new mysqli(
                 $this->hostName,
                 $this->userName,
                 $this->userPassword,
                 $this->dataBaseName
             ) or die(mysql_error());
-            @$this->conexion->set_charset("utf8");
+            @$this->mysqli->set_charset("utf8");
 
-            if ($this->conexion->connect_errno) {
+            if ($this->mysqli->connect_errno) {
                 return false;
             }
             return true;
@@ -37,43 +37,60 @@ class mysql
 
     }
 
-    public function insertar($tabla, $datos)//"usuarios","'PAPA','JUAN PABLO','foto.jpg'"
+    public function insertar($tabla, $datos) //"usuarios","'PAPA','JUAN PABLO','foto.jpg'"
+
     {
-        if ($this->conexion->query("INSERT INTO $tabla VALUES ($datos)")) {
+        if ($this->mysqli->query("INSERT INTO $tabla VALUES ($datos)")) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public function buscar($tabla, $condicion) //"usuarios","1"
+
     {
-        $resultado = $this->conexion->query("SELECT * FROM $tabla WHERE $condicion");
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion");
         if ($resultado) {
-            return $resultado->fetch_all(mysqli_assoc);
+            return $resultado->fetch_all(MYSQLI_ASSOC);
         }
+        return false;
+    }
+
+    public function listar($tabla) //"usuarios","1"
+
+    {
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla");
+        if ($resultado) {
+            return $resultado->fetch_all(MYSQLI_ASSOC);
+        }
+        return false;
     }
 
     public function buscarUnitario($tabla, $condicion) //"usuarios","1"
+
     {
-        $resultado = $this->conexion->query("SELECT * FROM $tabla WHERE $condicion  LIMIT 1");
+        $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion  LIMIT 1");
         if ($resultado) {
-            return $resultado->fetch_all(mysqli_assoc);
+            return $resultado->fetch_assoc();
+            //return $resultado->fetch_all(MYSQLI_ASSOC);
         }
+        return false;
     }
 
-    public function actualizar($tabla, $campos, $condicion)//"usuarios","nombre='ANAMARIA'","id=1"
+    public function actualizar($tabla, $campos, $condicion) //"usuarios","nombre='ANAMARIA'","id=1"
+
     {
-        $resultado = $this->conexion->query("UPDATE $tabla SET $campos WHERE $condicion");
+        $resultado = $this->mysqli->query("UPDATE $tabla SET $campos WHERE $condicion");
         if ($resultado) {
             return true;
         }
         return false;
     }
 
-    public function borrar($tabla, $condicion)//"usuarios","id=1"
+    public function borrar($tabla, $condicion) //"usuarios","id=1"
+
     {
-        $resultado = $this->conexion->query("DELETE FROM $tabla WHERE $condicion") or die($this->conexion->error);
+        $resultado = $this->mysqli->query("DELETE FROM $tabla WHERE $condicion") or die($this->mysqli->error);
         if ($resultado) {
             return true;
         }
