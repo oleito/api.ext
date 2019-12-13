@@ -3,68 +3,69 @@ use \Psr\Http\Message\ResponseInterface as Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 
 $app->get('/login', function (Request $request, Response $response, array $args) {
-    $bodyOut = [];
-    $peticiones = new peticion($request, $response, $args);
-    $func = function ($request) {
-        $resp = array(
-            'respuesta' => array(
-                'nombre' => 'leandro',
-                'apellido' => 'ortega',
-            ),
-        );
-        return $resp;
-    };
-    return $peticiones->conTokenGet($func($request));
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(405);
 });
-
 
 $app->post('/login', function (Request $request, Response $response, array $args) {
 
-   $bodyIn = [];
-   $bodyOut = [];
+    $bodyIn = [];
+    $bodyOut = [];
 
-   $peticiones = new peticion($request, $response, $args);
+    $peticiones = new peticion($request, $response, $args);
 
-   $bodyIn = $request->getParsedBody();
-   $userName = $bodyIn['user']['userName'];
-   $userPassword = $bodyIn['user']['userPassword'];
+    $bodyIn = $request->getParsedBody();
+    $userName = $bodyIn['user']['userName'];
+    $userPassword = $bodyIn['user']['userPassword'];
 
-   $usuario_nombre = '';
-   $usuario_apellido = '';
+    $usuario_nombre = '';
+    $usuario_apellido = '';
 
-   function verificarUsuario($userName, $userPassword)
-   {
-       $mysql = new mysql;
-       if ($mysql->conectar() && $savedUserData = $mysql->buscar('usuario', "usuario_username = '$userName'")) {
+    function verificarUsuario($userName, $userPassword)
+    {
+        $mysql = new mysql;
+        if ($mysql->conectar() && $savedUserData = $mysql->buscar('usuario', "usuario_username = '$userName'")) {
 
-           if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
-               $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
-               $GLOBALS['usuario_apellido'] = $savedUserData[0]['usuario_apellido'];
-               return true;
-           }
-       }
-       return false;
-   };
+            if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
+                $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
+                $GLOBALS['usuario_apellido'] = $savedUserData[0]['usuario_apellido'];
+                return true;
+            }
+        }
+        return false;
+    };
 
-   $func = function ($request) {
+    $func = function ($request) {
 
-       $bodyIn = $request->getParsedBody();
-       $bodyOut['usuario'] = [
-           @'nombre' => $GLOBALS['usuario_nombre'],
-           @'apellido' => $GLOBALS['usuario_apellido'],
-       ];
+        $bodyIn = $request->getParsedBody();
+        $bodyOut['usuario'] = [
+            @'nombre' => $GLOBALS['usuario_nombre'],
+            @'apellido' => $GLOBALS['usuario_apellido'],
+        ];
 
-       return $bodyOut;
-   };
+        return $bodyOut;
+    };
 
-   if (verificarUsuario($userName, $userPassword)) {
-       return $peticiones->sinTokenLogin($func($request), true, null);
-   } else {
-       return $peticiones->sinTokenLogin(null, false, 401);
-   }
+    if (verificarUsuario($userName, $userPassword)) {
+        return $peticiones->sinTokenLogin($func($request), true, null);
+    } else {
+        return $peticiones->sinTokenLogin(null, false, 401);
+    }
 
 });
 
+$app->put('/login', function (Request $request, Response $response, array $args) {
+   return $response
+       ->withHeader('Content-type', 'application/json')
+       ->withStatus(405);
+});
+
+$app->delete('/login', function (Request $request, Response $response, array $args) {
+   return $response
+       ->withHeader('Content-type', 'application/json')
+       ->withStatus(405);
+});
 
 // //////////
 // $mysql = new mysql;
