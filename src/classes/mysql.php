@@ -68,7 +68,8 @@ class mysql
     public function buscar($tabla, $condicion) #'usuario', 'idusuario > 0'
 
     {
-        $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
+        $resultado = $this->mysqli->query("SELECT * FROM parisaut_chapa.".$tabla." WHERE $condicion LIMIT 1");
+        //echo ("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
             return $resultado->fetch_all(MYSQLI_ASSOC);
         }
