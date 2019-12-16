@@ -56,7 +56,7 @@ class token
     public function checkToken($token)
     {
 
-        return true; ################ dev prop
+  //      return true; ################ dev prop
 
         /**
          * ESTA FUNCION DEBE EVALUAR SI EL TOKEN ES VALIDO
@@ -65,25 +65,26 @@ class token
 
         try {
             //Divide el Token en 3 Partes
-            $t = explode(".", $token);
-            //asigna los valores a referencias
-            $refHeader = $t[0];
-            $refPayload = $t[1];
-            $refSignature = $t[2];
-            //Crea un nuevo signature con los datos del token
-            $newSignature = self::base64url_encode(hash_hmac("sha256", $refHeader . "." . $refPayload, $this->secret, true));
-            //decodifica el payload
-            $refPayload = json_decode(base64_decode($refPayload), true);
-            //obtiene el momento en que expira
-            $expire = $refPayload['expire'];
-            //Verifica si el token ha expirado
-            if ($expire >= strtotime('now') && $refSignature === $newSignature) {
-                // si aun es valido
-                return true;
-            } else {
-                // Si ya expiro
-                return false;
+            if ($t = explode(".", $token)) {
+
+                //asigna los valores a referencias
+                $refHeader = $t[0];
+                $refPayload = $t[1];
+                $refSignature = $t[2];
+                //Crea un nuevo signature con los datos del token
+                $newSignature = self::base64url_encode(hash_hmac("sha256", $refHeader . "." . $refPayload, $this->secret, true));
+                //decodifica el payload
+                $refPayload = json_decode(base64_decode($refPayload), true);
+                //obtiene el momento en que expira
+                $expire = $refPayload['expire'];
+                //Verifica si el token ha expirado
+                if ($expire >= strtotime('now') && $refSignature === $newSignature) {
+                    // si aun es valido
+                    return true;
+                }
             }
+            return false;
+
         } catch (\Throwable $th) {
             // Si ya expiro
             return false;
@@ -99,21 +100,23 @@ class token
         //return "Token de prueba";
         try {
             //Divide el Token en 3 Partes
-            $t = explode(".", $token);
-            //asigna los valores a referencias
-            $refHeader = $t[0];
-            $refPayload = $t[1];
-            //decodifica el payload
-            $refPayload = json_decode(base64_decode($refPayload), true);
-            //actualiza EXPIRE
-            $refPayload['expire'] = $this->expire;
-            //codificamos el nuevo Payload con
-            $newPayload = self::base64url_encode(json_encode($refPayload));
-            //Crea un nuevo signature con los datos del token
-            $signature = self::base64url_encode(hash_hmac("sha256", $refHeader . "." . $newPayload, $this->secret, true));
-            //Construye el token = header+paylad+signature
-            $newToken = $refHeader . "." . $newPayload . "." . $signature;
-            return $newToken;
+            if ($t = explode(".", $token)) {
+                $refHeader = $t[0];
+                $refPayload = $t[1];
+
+                //decodifica el payload
+                $refPayload = json_decode(base64_decode($refPayload), true);
+                //actualiza EXPIRE
+                $refPayload['expire'] = $this->expire;
+                //codificamos el nuevo Payload con
+                $newPayload = self::base64url_encode(json_encode($refPayload));
+                //Crea un nuevo signature con los datos del token
+                $signature = self::base64url_encode(hash_hmac("sha256", $refHeader . "." . $newPayload, $this->secret, true));
+                //Construye el token = header+paylad+signature
+                $newToken = $refHeader . "." . $newPayload . "." . $signature;
+                return $newToken;
+            }
+            return false;
         } catch (\Throwable $th) {
             return false;
 

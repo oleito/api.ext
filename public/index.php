@@ -9,8 +9,6 @@ require '../src/classes/mysql.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
-#header("Allow: GET, POST, PUT, DELETE");
-
 /*
 $config['db']['host']   = 'localhost';
 $config['db']['user']   = 'user';
@@ -89,7 +87,9 @@ $app->put('/', function (Request $request, Response $response, array $args) {
     return $peticiones->conTokenPost($func($request), true, null);
 });
 
-########################## END ##########################
+########################## RUTAS ##########################
+
+
 require_once '../src/rutas/login.php';
 
 

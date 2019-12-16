@@ -26,7 +26,6 @@ $app->post('/login', function (Request $request, Response $response, array $args
     {
         $mysql = new mysql;
         if ($mysql->conectar() && $savedUserData = $mysql->buscar('usuario', "usuario_username = '$userName'")) {
-
             if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
                 $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
                 $GLOBALS['usuario_apellido'] = $savedUserData[0]['usuario_apellido'];
@@ -43,7 +42,6 @@ $app->post('/login', function (Request $request, Response $response, array $args
             @'nombre' => $GLOBALS['usuario_nombre'],
             @'apellido' => $GLOBALS['usuario_apellido'],
         ];
-
         return $bodyOut;
     };
 
@@ -72,7 +70,9 @@ $app->delete('/login', function (Request $request, Response $response, array $ar
 // if ($mysql->conectar()) {
 
 //     $password = '1q2w3eparisNadarisca32';
+// $newPass = password_hash($password, PASSWORD_BCRYPT);
 
+// $bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 1");
 //     $bodyOut['dbMsj'] = 'parece que todo OK';
 //     //$bodyOut['Insertar'] = $mysql->insertar("usuario", "null, 'usr@dom'");
 
@@ -82,9 +82,7 @@ $app->delete('/login', function (Request $request, Response $response, array $ar
 //     //      usuario_nombre = 'Juan Pablo',
 //     //      usuario_apellido = 'Quiroga'
 //     //      ", "idusuario = 4");
-//     //$newPass = password_hash($password, PASSWORD_BCRYPT);
 
-//     //$bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 1");
 
 //     //$bodyOut['buscar'] = $mysql->buscar('usuario', 'idusuario > 0');
 //     // $aux = $mysql->buscar('usuario', "usuario_username = 'sistemas@parisautos.com.ar'");

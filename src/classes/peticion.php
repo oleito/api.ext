@@ -136,6 +136,8 @@ class peticion
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus($code);
         } else {
+
+            #### datos de ejemplo
             $usuario = array(
                 'id' => 036,
                 'nombre' => 'Leandro',
@@ -145,6 +147,7 @@ class peticion
                     07,
                 ],
             );
+            ##############
 
             $body = array(
                 'token' => $token->setToken($usuario),
