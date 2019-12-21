@@ -1,4 +1,13 @@
 <?php
+
+// Permite la conexion desde cualquier origen
+header("Access-Control-Allow-Origin: *");
+// Permite la ejecucion de los metodos
+header("Access-Control-Allow-Methods: *");
+header("Access-Control-Allow-Headers: *");
+header("Content-Type: application/json");
+
+
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 

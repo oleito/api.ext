@@ -8,6 +8,28 @@ $app->get('/login', function (Request $request, Response $response, array $args)
         ->withStatus(405);
 });
 
+############
+
+$app->post('/loginTEST', function (Request $request, Response $response, array $args) {
+
+    $bodyIn = [];
+    $bodyOut = [];
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request) {
+
+        $bodyIn = $request->getParsedBody();
+        $bodyOut = $bodyIn;
+        return $bodyOut;
+    };
+
+    return $peticiones->sinTokenLogin($func($request), true, null);
+
+});
+
+################
+
 $app->post('/login', function (Request $request, Response $response, array $args) {
 
     $bodyIn = [];
@@ -16,8 +38,8 @@ $app->post('/login', function (Request $request, Response $response, array $args
     $peticiones = new peticion($request, $response, $args);
 
     $bodyIn = $request->getParsedBody();
-    $userName = $bodyIn['user']['userName'];
-    $userPassword = $bodyIn['user']['userPassword'];
+    @$userName = $bodyIn['user']['userName'];
+    @$userPassword = $bodyIn['user']['userPassword'];
 
     $usuario_nombre = '';
     $usuario_apellido = '';
@@ -45,24 +67,31 @@ $app->post('/login', function (Request $request, Response $response, array $args
         return $bodyOut;
     };
 
+    $funcTest = function ($request) {
+
+        $bodyIn = $request->getParsedBody();
+        $bodyOut = $bodyIn;
+        return $bodyOut;
+    };
+
     if (verificarUsuario($userName, $userPassword)) {
         return $peticiones->sinTokenLogin($func($request), true, null);
     } else {
-        return $peticiones->sinTokenLogin(null, false, 401);
+        return $peticiones->sinTokenLogin($funcTest($request), false, 401);
     }
 
 });
 
 $app->put('/login', function (Request $request, Response $response, array $args) {
-   return $response
-       ->withHeader('Content-type', 'application/json')
-       ->withStatus(405);
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(405);
 });
 
 $app->delete('/login', function (Request $request, Response $response, array $args) {
-   return $response
-       ->withHeader('Content-type', 'application/json')
-       ->withStatus(405);
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(405);
 });
 
 // //////////
@@ -82,7 +111,6 @@ $app->delete('/login', function (Request $request, Response $response, array $ar
 //     //      usuario_nombre = 'Juan Pablo',
 //     //      usuario_apellido = 'Quiroga'
 //     //      ", "idusuario = 4");
-
 
 //     //$bodyOut['buscar'] = $mysql->buscar('usuario', 'idusuario > 0');
 //     // $aux = $mysql->buscar('usuario', "usuario_username = 'sistemas@parisautos.com.ar'");

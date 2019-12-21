@@ -156,7 +156,7 @@ class peticion
 
             return $this->response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(201)
+                ->withStatus(202)
                 ->withJson($body);
         }
     }
