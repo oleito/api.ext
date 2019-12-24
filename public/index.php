@@ -15,6 +15,7 @@ require '../vendor/autoload.php';
 require '../src/classes/token.php';
 require '../src/classes/peticion.php';
 require '../src/classes/mysql.php';
+require '../src/classes/filtro.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 

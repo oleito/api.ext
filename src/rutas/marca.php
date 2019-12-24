@@ -33,14 +33,17 @@ $app->post('/marca', function (Request $request, Response $response, array $args
 
     $func = function ($request) {
         #logica de la funcion, entrega el arreglo a devolver por la API
+        $filtro=new filtro;
         $bodyIn = [];
         $bodyOut = [];
 
         $bodyIn = $request->getParsedBody();
 
         if (@$bodyIn['marca'] && @$bodyIn['marca']['marcaNombre'] && @$bodyIn['marca']['marcaIniciales']) {
-            $nombre = $bodyIn['marca']['marcaNombre'];
-            $iniciales = $bodyIn['marca']['marcaIniciales'];
+
+            
+            $nombre = $filtro->stringFilter($bodyIn['marca']['marcaNombre']);
+            $iniciales = $filtro->stringFilter($bodyIn['marca']['marcaIniciales']);
             $mysql = new mysql;
 
             if ($mysql->conectar() && $mysql->insertar("vhMarca", "null, '" . $nombre . "', '" . $iniciales . "'")) {
