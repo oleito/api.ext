@@ -12,10 +12,18 @@ class peticion
         $this->args = $args;
     }
 
-    public function conTokenGet($funcionAnonina)
+    public function conTokenGet($funcionAnonina, $status, $code)
     {
         $token = new token;
-        if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
+        if (!$status) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus($code);
+        } else if (!$funcionAnonina) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(500);
+        } else if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 
             $body = array(
@@ -41,6 +49,10 @@ class peticion
             return $this->response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus($code);
+        } else if (!$funcionAnonina) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(500);
         } else if ($this->request->hasHeader('HTTP_TOKEN') && $token->checkToken($this->request->getHeader("HTTP_TOKEN")[0])) {
             $body["HTTP_TOKEN"] = $this->request->getHeader("HTTP_TOKEN")[0];
 

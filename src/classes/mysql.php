@@ -39,7 +39,20 @@ class mysql
         } catch (\Throwable $th) {
             return false;
         }
+    }
 
+    public function conectarPDO()
+    {
+        try {
+            $conexion_mysql = "mysql:host=$this->DBhostName;dbname=$this->DBdataBaseName";
+            $conexionDB = new PDO($conexion_mysql, $this->DBuserName, $this->DBuserPassword);
+            $conexionDB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            //condificacion de caracteres
+            //$conexionDB -> exec("set name utf8");
+            return $conexionDB;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
     }
 
     /**
@@ -52,10 +65,12 @@ class mysql
     public function insertar($tabla, $datos) #"usuario", "null, 'usr@dom'"
 
     {
-        if ($this->mysqli->query("INSERT INTO $tabla VALUES ($datos)")) {
+        if ($this->mysqli->query("INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)")) {
             return true;
+        } else {
+            echo "INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)";
+            return false;
         }
-        return false;
     }
 
     /**
@@ -68,7 +83,7 @@ class mysql
     public function buscar($tabla, $condicion) #'usuario', 'idusuario > 0'
 
     {
-        $resultado = $this->mysqli->query("SELECT * FROM parisaut_chapa.".$tabla." WHERE $condicion LIMIT 1");
+        $resultado = $this->mysqli->query("SELECT * FROM parisaut_chapa." . $tabla . " WHERE $condicion LIMIT 1");
         //echo ("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
             return $resultado->fetch_all(MYSQLI_ASSOC);
@@ -76,7 +91,7 @@ class mysql
         return false;
     }
 
-        /**
+    /**
      * Busca registros segun el criterio dado
      *
      * @param [text] $tabla
@@ -108,7 +123,6 @@ class mysql
         }
         return false;
     }
-
 
     /**
      * Actualiza un registro
