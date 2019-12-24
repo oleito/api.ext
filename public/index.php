@@ -100,6 +100,7 @@ $app->put('/', function (Request $request, Response $response, array $args) {
 
 
 require_once '../src/rutas/login.php';
+require_once '../src/rutas/marca.php';
 
 
 $app->run();
