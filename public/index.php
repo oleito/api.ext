@@ -103,6 +103,7 @@ $app->put('/', function (Request $request, Response $response, array $args) {
 require_once '../src/rutas/login.php';
 require_once '../src/rutas/marca.php';
 require_once '../src/rutas/modelo.php';
+require_once '../src/rutas/seguro.php';
 require_once '../src/rutas/tipo.php';
 
 

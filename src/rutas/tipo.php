@@ -15,9 +15,15 @@ $app->get('/tipo', function (Request $request, Response $response, array $args) 
             $mysql->conectar();
 
             if ($params = $request->getQueryParams()) {
-                if ($params['marca']) {
-                    $idMarca = $filtro->stringFilter($params['marca']);
-                    // return $mysql->listar("vhtipo WHERE vhMarca_idvhMarca = $idMarca");
+                if (@$params['modelo']) {
+                    $modelo = $filtro->stringFilter($params['modelo']);
+                    return $mysql->listar("vhModelo
+                    JOIN vhTipo
+                    on vhModelo.vhTipo_idvhTipo = vhTipo.idvhTipo
+                    WHERE vhModelo.idvhModelo = $modelo");
+                } else if (@$params['id']) {
+                    $id = $filtro->stringFilter($params['id']);
+                    return $mysql->listar("vhTipo WHERE idvhTipo = $id");
                 }
             }
 
