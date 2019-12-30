@@ -1,0 +1,16 @@
+{
+  "seguimiento": {
+    "marca": "1",
+    "modelo": "15",
+    "patente": "IDA",
+    "seguro": "Sura",
+    "orden": "123",
+    "piezas": {
+      "0": { "pieza": "Paragolpe", "accion": "Pintar" },
+      "1": { "pieza": "Paragolpe", "accion": "Pintar" }
+    },
+    "fechaIngreso": "2019-12-01",
+    "fechaSalidaAprox": "2019-12-25",
+    "observaciones": "Blanco"
+  }
+}

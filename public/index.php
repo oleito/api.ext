@@ -105,6 +105,7 @@ require_once '../src/rutas/marca.php';
 require_once '../src/rutas/modelo.php';
 require_once '../src/rutas/seguro.php';
 require_once '../src/rutas/tipo.php';
+require_once '../src/rutas/traza.php';
 
 
 $app->run();

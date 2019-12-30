@@ -123,6 +123,16 @@ class mysql
         }
         return false;
     }
+    public function listarCols($cols, $tabla) //"usuarios","1"
+
+    {
+        $resultado = $this->mysqli->query("SELECT $cols FROM $tabla");
+        if ($resultado) {
+            return $resultado->fetch_all(MYSQLI_ASSOC);
+        }
+        return false;
+    }
+
 
     /**
      * Actualiza un registro
