@@ -51,6 +51,7 @@ $app->post('/login', function (Request $request, Response $response, array $args
             if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
                 $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
                 $GLOBALS['usuario_apellido'] = $savedUserData[0]['usuario_apellido'];
+                $GLOBALS['idusuario'] = $savedUserData[0]['idusuario'];
                 return true;
             }
         }
@@ -61,6 +62,7 @@ $app->post('/login', function (Request $request, Response $response, array $args
 
         $bodyIn = $request->getParsedBody();
         $bodyOut['usuario'] = [
+            @'id' => $GLOBALS['idusuario'],
             @'nombre' => $GLOBALS['usuario_nombre'],
             @'apellido' => $GLOBALS['usuario_apellido'],
         ];

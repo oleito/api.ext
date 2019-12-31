@@ -10,6 +10,7 @@ class mysql
     private $DBdataBaseName = 'parisaut_chapa';
 
     public $mysqli;
+    private $lastId;
 
     public function __construct()
     {
@@ -66,11 +67,16 @@ class mysql
 
     {
         if ($this->mysqli->query("INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)")) {
+            $this->lastId = $this->mysqli->insert_id;
             return true;
         } else {
             echo "INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)";
             return false;
         }
+    }
+
+    public function getLastId(){
+        return $this->lastId;
     }
 
     /**
@@ -132,7 +138,6 @@ class mysql
         }
         return false;
     }
-
 
     /**
      * Actualiza un registro

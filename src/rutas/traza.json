@@ -1,16 +1,17 @@
 {
-  "seguimiento": {
-    "marca": "1",
-    "modelo": "15",
-    "patente": "IDA",
-    "seguro": "Sura",
-    "orden": "123",
-    "piezas": {
-      "0": { "pieza": "Paragolpe", "accion": "Pintar" },
-      "1": { "pieza": "Paragolpe", "accion": "Pintar" }
-    },
-    "fechaIngreso": "2019-12-01",
-    "fechaSalidaAprox": "2019-12-25",
-    "observaciones": "Blanco"
-  }
+	"seguimiento": {
+		"marca": "1",
+		"modelo": "1",
+		"patente": "pis123",
+		"seguro": "6",
+		"orden": "112233",
+		"piezas": {
+			"0": { "pieza": "Pagaolpe delantero", "accion": "Reemplazar" },
+			"1": { "pieza": "Paragolpe trasero", "accion": "Pintar" }
+		},
+		"fechaIngreso": "2019-12-01",
+		"fechaSalidaAprox": "2019-12-20",
+		"observaciones": "Observacion, era blanco",
+		"idUsuario": "1"
+	}
 }
