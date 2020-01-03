@@ -43,6 +43,72 @@ $app->get('/traza', function (Request $request, Response $response, array $args)
     return $peticiones->conTokenGet($func($request), true, null);
 });
 
+$app->get('/traza/{cat}', function (Request $request, Response $response, array $args) {
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request, $args) {
+        $filtro = new filtro;
+        $bodyOut = [];
+        if ($params = $request->getQueryParams()) {
+            if ($params['idtraza'] && $args['cat']) {
+                // Obtenemos el ID de la traza
+                $idTraza = $filtro->stringFilter($params['idtraza']);
+                $cat = $args['cat'];
+
+                switch ($cat) {
+
+                    case 'piezas':
+                        $bodyOut = ['piezas'];
+                        break;
+
+                    case 'mov':
+                        $bodyOut = ['movs'];
+                        break;
+
+                    default:
+                        $bodyOut = ['def'];
+
+                        break;
+                }
+                return $bodyOut;
+            }
+        }
+
+        try {
+            $mysql = new mysql;
+            $mysql->conectar();
+
+            $seguimientos = $mysql->listarCols(
+                'idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro',
+                'traza
+                JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
+                JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
+                JOIN seguro on seguro.idseguro= traza.seguro_idseguro'
+            );
+
+            foreach ($seguimientos as $key => $value) {
+                // valor del ID de traza
+                $idTraza = $value['idtraza'];
+                $ultimoMovimiento = $mysql->listarCols(
+                    "movimiento_fecha, movimiento_hora, chSector",
+                    "movimiento
+                    JOIN chSector ON movimiento.chSector_idchSector_destino = chSector.idchSector
+                    WHERE movimiento.traza_idtraza = $idTraza ORDER BY movimiento.idmovimiento DESC LIMIT 1"
+                );
+
+                $filaConcatenada = array_merge($value, $ultimoMovimiento[0]);
+
+                array_push($bodyOut, $filaConcatenada);
+            }
+            return $bodyOut;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    };
+    return $peticiones->conTokenGet($func($request, $args), true, null);
+});
+
 /**
  * POST
  */
@@ -77,19 +143,15 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             // $tipo = $filtro->stringFilter($bodyIn['modelo']['modeloTipo']);
             //
             //trazaTipo
-            $orden = $bodyIn['seguimiento']['orden'];
-            $seguro = $bodyIn['seguimiento']['seguro'];
-            $modelo = $bodyIn['seguimiento']['modelo'];
-            $patente = $bodyIn['seguimiento']['patente'];
-            $fecha_entrega = $bodyIn['seguimiento']['fechaSalidaAprox'];
+            $orden = $filtro->stringFilter($bodyIn['seguimiento']['orden']);
+            $seguro = $filtro->stringFilter($bodyIn['seguimiento']['seguro']);
+            $modelo = $filtro->stringFilter($bodyIn['seguimiento']['modelo']);
+            $patente = $filtro->stringFilter($bodyIn['seguimiento']['patente']);
+            $fecha_entrega = $filtro->stringFilter($bodyIn['seguimiento']['fechaSalidaAprox']);
 
-            $idUsuario = $bodyIn['seguimiento']['idUsuario'];
-            $fechaIngreso = $bodyIn['seguimiento']['fechaIngreso'];
-            $piezas = $bodyIn['seguimiento']['piezas'];
-
-            ###################
-            // HAY QUE MODIFICAR LA BASE DE DATOS SI O SI
-            ####################
+            $idUsuario = $filtro->stringFilter($bodyIn['seguimiento']['idUsuario']);
+            $fechaIngreso = $filtro->stringFilter($bodyIn['seguimiento']['fechaIngreso']);
+            $piezas = $filtro->stringFilter($bodyIn['seguimiento']['piezas']);
 
             /**
              * insertar primero la orden (y guardar el valor)
@@ -106,18 +168,23 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             if ($mysql->conectar()) {
                 if (empty($mysql->listar("orden WHERE idorden = $orden"))) {
 
+                    /** Inserta la Onder */
                     $mysql->insertar("orden", "'$orden'");
+
+                    /** Inserta la traza */
                     $mysql->insertar("traza", "NULL, '$seguro', '$orden', '$modelo', '$patente', '$fecha_entrega'");
                     $lastTrazaId = $mysql->getLastId();
+
+                    /** Inserta el Movimiento */
                     $mysql->insertar("movimiento", "NULL, '$lastTrazaId', '$idUsuario', '1', '$fechaIngreso', '11:30:00'");
 
+                    /** Inserta las piezas */
                     foreach ($piezas as $key => $value) {
-
                         $pieza_nombre = $value['pieza'];
                         $pieza_accion = $value['accion'];
-
                         $mysql->insertar("pieza", "NULL, '$lastTrazaId', '$pieza_nombre', '$pieza_accion'");
                     }
+
                 }
                 $bodyOut = $bodyIn;
                 //INSERT INTO `vhModelo` (`idvhModelo`, `vhModelo`, `vhMarca_idvhMarca`, `vhTipo_idvhTipo`) VALUES (NULL, 'Palio', '9', '1');
