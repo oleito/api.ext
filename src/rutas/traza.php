@@ -48,63 +48,52 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
     $peticiones = new peticion($request, $response, $args);
 
     $func = function ($request, $args) {
+
         $filtro = new filtro;
         $bodyOut = [];
+
         if ($params = $request->getQueryParams()) {
             if ($params['idtraza'] && $args['cat']) {
-                // Obtenemos el ID de la traza
-                $idTraza = $filtro->stringFilter($params['idtraza']);
-                $cat = $args['cat'];
 
-                switch ($cat) {
+                try {
+                    $mysql = new mysql;
+                    $mysql->conectar();
+                    // Obtenemos el ID de la traza
+                    $idTraza = $filtro->stringFilter($params['idtraza']);
+                    $cat = $args['cat'];
 
-                    case 'piezas':
-                        $bodyOut = ['piezas'];
-                        break;
+                    switch ($cat) {
 
-                    case 'mov':
-                        $bodyOut = ['movs'];
-                        break;
+                        case 'piezas':
+                            $bodyOut = $mysql->listar("pieza WHERE traza_idtraza = $idTraza");
+                            return $bodyOut;
+                            break;
 
-                    default:
-                        $bodyOut = ['def'];
+                        case 'mov':
 
-                        break;
+                            $bodyOut = $mysql->listarCols(
+                                "usuario.usuario_nombre, usuario.usuario_apellido, chSector.chSector, movimiento_fecha, movimiento_hora ",
+                                "movimiento
+                                JOIN chSector on movimiento.chSector_idchSector_destino = chSector.idchSector
+                                JOIN usuario ON movimiento.usuario_idusuario = usuario.idusuario
+                                WHERE movimiento.traza_idtraza = $idTraza"
+                            );
+                            return $bodyOut;
+                            break;
+
+                        default:
+                            $bodyOut = ['def'];
+
+                            break;
+                    }
+                    return $bodyOut;
+                } catch (\Throwable $th) {
+                    return false;
                 }
-                return $bodyOut;
+
             }
         }
 
-        try {
-            $mysql = new mysql;
-            $mysql->conectar();
-
-            $seguimientos = $mysql->listarCols(
-                'idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro',
-                'traza
-                JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
-                JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
-                JOIN seguro on seguro.idseguro= traza.seguro_idseguro'
-            );
-
-            foreach ($seguimientos as $key => $value) {
-                // valor del ID de traza
-                $idTraza = $value['idtraza'];
-                $ultimoMovimiento = $mysql->listarCols(
-                    "movimiento_fecha, movimiento_hora, chSector",
-                    "movimiento
-                    JOIN chSector ON movimiento.chSector_idchSector_destino = chSector.idchSector
-                    WHERE movimiento.traza_idtraza = $idTraza ORDER BY movimiento.idmovimiento DESC LIMIT 1"
-                );
-
-                $filaConcatenada = array_merge($value, $ultimoMovimiento[0]);
-
-                array_push($bodyOut, $filaConcatenada);
-            }
-            return $bodyOut;
-        } catch (\Throwable $th) {
-            return false;
-        }
     };
     return $peticiones->conTokenGet($func($request, $args), true, null);
 });
