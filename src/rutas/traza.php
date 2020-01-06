@@ -101,13 +101,11 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
 /**
  * POST
  */
-
 $app->post('/traza', function (Request $request, Response $response, array $args) {
 
     $peticiones = new peticion($request, $response, $args);
 
     $func = function ($request) {
-        #### Variables y Clases ####
         $filtro = new filtro;
 
         $bodyIn = [];
@@ -127,37 +125,23 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             && @$bodyIn['seguimiento']['piezas']
         ) {
 
-            // $nombre = $filtro->stringFilter($bodyIn['modelo']['modeloNombre']);
-            // $marca = $filtro->stringFilter($bodyIn['modelo']['modeloMarca']);
-            // $tipo = $filtro->stringFilter($bodyIn['modelo']['modeloTipo']);
-            //
-            //trazaTipo
-            $orden = $filtro->stringFilter($bodyIn['seguimiento']['orden']);
-            $seguro = $filtro->stringFilter($bodyIn['seguimiento']['seguro']);
-            $modelo = $filtro->stringFilter($bodyIn['seguimiento']['modelo']);
+            $orden = intval($bodyIn['seguimiento']['orden']);
+            $seguro = intval($bodyIn['seguimiento']['seguro']);
+            $modelo = intval($bodyIn['seguimiento']['modelo']);
             $patente = $filtro->stringFilter($bodyIn['seguimiento']['patente']);
             $fecha_entrega = $filtro->stringFilter($bodyIn['seguimiento']['fechaSalidaAprox']);
 
-            $idUsuario = $filtro->stringFilter($bodyIn['seguimiento']['idUsuario']);
+            $idUsuario = intval($bodyIn['seguimiento']['idUsuario']);
             $fechaIngreso = $filtro->stringFilter($bodyIn['seguimiento']['fechaIngreso']);
-            $piezas = $filtro->stringFilter($bodyIn['seguimiento']['piezas']);
 
-            /**
-             * insertar primero la orden (y guardar el valor)
-             * luego la traza (con la orden)
-             * luego movimiento (id de usuario, viene en req)
-             * ​INSERT INTO `movimiento`
-             * (`idmovimiento`, `traza_idtraza`, `usuario_idusuario`, `chSector_idchSector_destino`, `movimiento_fecha`, `movimiento_hora`) VALUES
-             * (NULL, '3', '1', '1', '2019-12-10', '11:30:00');
-             *
-             */
+            $piezas = $bodyIn['seguimiento']['piezas'];
 
             $mysql = new mysql;
 
             if ($mysql->conectar()) {
                 if (empty($mysql->listar("orden WHERE idorden = $orden"))) {
 
-                    /** Inserta la Onder */
+                    /** Inserta la Orden */
                     $mysql->insertar("orden", "'$orden'");
 
                     /** Inserta la traza */
@@ -169,14 +153,15 @@ $app->post('/traza', function (Request $request, Response $response, array $args
 
                     /** Inserta las piezas */
                     foreach ($piezas as $key => $value) {
-                        $pieza_nombre = $value['pieza'];
-                        $pieza_accion = $value['accion'];
+
+                        $pieza_nombre = $filtro->stringFilter($value['pieza']);
+                        $pieza_accion = $filtro->stringFilter($value['accion']);
                         $mysql->insertar("pieza", "NULL, '$lastTrazaId', '$pieza_nombre', '$pieza_accion'");
                     }
 
                 }
                 $bodyOut = $bodyIn;
-                //INSERT INTO `vhModelo` (`idvhModelo`, `vhModelo`, `vhMarca_idvhMarca`, `vhTipo_idvhTipo`) VALUES (NULL, 'Palio', '9', '1');
+
             } else {
                 return false;
             }
@@ -187,6 +172,58 @@ $app->post('/traza', function (Request $request, Response $response, array $args
     return $peticiones->conTokenPost($func($request), true, null);
 });
 
+$app->put('/traza/avanzar', function (Request $request, Response $response, array $args) {$peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request, $args) {
+
+        $filtro = new filtro;
+        $bodyOut = [];
+
+        if ($params = $request->getQueryParams()) {
+            if ($params['idtraza'] && $params['idusuario']) {
+                try {
+                    $idtraza = $params['idtraza'];
+                    $idusuario = $params['idusuario'];
+                    $mysql = new mysql;
+                    if ($mysql->conectar()) {
+                        $aux = $mysql->listar("movimiento
+                                                WHERE traza_idtraza = $idtraza
+                                                ORDER BY idmovimiento DESC
+                                                LIMIT 1");
+                        $ultimoSector = (int) $aux[0]['chSector_idchSector_destino'];
+                        $nuevoSector = $ultimoSector + 1;
+
+                        $fecha = date('Y-m-d'); // "2019-12-01",
+                        $hora = date('H:i:s'); // '11:30:00'
+
+                        /** Inserta el Movimiento */
+                        if ($mysql->insertar("movimiento", "NULL, '$idtraza', '$idusuario', '$nuevoSector', '$fecha', '$hora'")) {
+                            $bodyOut = $mysql->listarCols(
+                                "movimiento_fecha, movimiento_hora, chSector",
+                                "movimiento
+                                JOIN chSector ON movimiento.chSector_idchSector_destino = chSector.idchSector
+                                WHERE movimiento.traza_idtraza = $idtraza ORDER BY movimiento.idmovimiento DESC LIMIT 1"
+                            );
+                            return $bodyOut;
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    $bodyOut['err'] = $th;
+                    return false;
+                }
+
+            }
+        }
+
+    };
+    return $peticiones->conTokenGet($func($request, $args), true, null);
+
+});
+// SELECT *
+// FROM `movimiento`
+// WHERE traza_idtraza = 23
+// ORDER BY idmovimiento DESC
+// LIMIT 1
 $app->put('/traza', function (Request $request, Response $response, array $args) {
     return $response
         ->withHeader('Content-type', 'application/json')

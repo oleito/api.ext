@@ -16,7 +16,7 @@ class filtro
     public function stringFilter($stringIn)
     {
         // Produce: Hll Wrld f PHP
-        $vowels = array("=", "==", "===", "'", '"', "or", "and", "while", "DROP", "drop", ";", ",");
+        $vowels = array("=", "==", "===", "'", '"', " or ", " OR ", " and ", " AND ", " while ", " DROP ", " drop ", ";", ",");
         $stringOut = str_ireplace($vowels, "", $stringIn);
         $stringOut = addslashes($stringOut);
         return $stringOut;
