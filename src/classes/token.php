@@ -8,7 +8,7 @@ class token
 {
     //Declaracion de variables
     private $secret = 'postventa2019';
-    private $timeOut = 1000;
+    private $timeOut = 1;
     private $expire = null;
     /*
      */

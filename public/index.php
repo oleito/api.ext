@@ -44,14 +44,14 @@ $app->get('/', function (Request $request, Response $response, array $args) {
         $resp = array(
             'respuesta' => array(
                 'nombre' => 'leandro',
-                'apellido' => 'ortega',
+                'apellido' => 'nicolas',
             ),
         );
 
         return $resp;
     };
 
-    return $peticiones->conTokenGet($func($request));
+    return $peticiones->sinTokenGet($func($request), true, null);
 });
 
 /**
@@ -73,7 +73,7 @@ $app->post('/', function (Request $request, Response $response, array $args) {
         return $bodyOut;
     };
 
-    return $peticiones->conTokenPost($func($request), true, null);
+    return $peticiones->sinTokenPost($func($request), true, null);
 });
 
 /**

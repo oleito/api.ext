@@ -42,6 +42,32 @@ class peticion
         }
     }
 
+    
+    public function sinTokenGet($funcionAnonina, $status, $code)
+    {
+        $token = new token;
+        if (!$status) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus($code);
+        } else if (!$funcionAnonina) {
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(500);
+        } else  {
+
+            $body = array(
+                'token' => 'sin Token',
+                'body' => $funcionAnonina,
+            );
+
+            return $this->response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200)
+                ->withJson($body);
+        }
+    }
+
     public function conTokenPost($funcionAnonina, $status, $code)
     {
         $token = new token;

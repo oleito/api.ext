@@ -14,7 +14,7 @@ $app->get('/traza', function (Request $request, Response $response, array $args)
             $mysql->conectar();
 
             $seguimientos = $mysql->listarCols(
-                'idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro',
+                'idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos',
                 'traza
                 JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
                 JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
@@ -123,11 +123,13 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             && @$bodyIn['seguimiento']['observaciones']
             && @$bodyIn['seguimiento']['idUsuario']
             && @$bodyIn['seguimiento']['piezas']
+            && @$bodyIn['seguimiento']['esperandoRepuestos']
         ) {
 
             $orden = intval($bodyIn['seguimiento']['orden']);
             $seguro = intval($bodyIn['seguimiento']['seguro']);
             $modelo = intval($bodyIn['seguimiento']['modelo']);
+            $esperandoRep = intval($bodyIn['seguimiento']['esperandoRepuestos']);
             $patente = $filtro->stringFilter($bodyIn['seguimiento']['patente']);
             $fecha_entrega = $filtro->stringFilter($bodyIn['seguimiento']['fechaSalidaAprox']);
 
@@ -145,7 +147,7 @@ $app->post('/traza', function (Request $request, Response $response, array $args
                     $mysql->insertar("orden", "'$orden'");
 
                     /** Inserta la traza */
-                    $mysql->insertar("traza", "NULL, '$seguro', '$orden', '$modelo', '$patente', '$fecha_entrega'");
+                    $mysql->insertar("traza", "NULL, '$seguro', '$orden', '$modelo', '$patente', '$fecha_entrega', '$esperandoRep'");
                     $lastTrazaId = $mysql->getLastId();
 
                     /** Inserta el Movimiento */
