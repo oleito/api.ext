@@ -7,7 +7,7 @@ date_default_timezone_set('America/Argentina/San_Luis');
 class token
 {
     //Declaracion de variables
-    private $secret = 'postventa2019';
+    private $secret = 'postventa2019'; // cabiar a 2020
     private $timeOut = 1;
     private $expire = null;
     /*
