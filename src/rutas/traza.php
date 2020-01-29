@@ -69,8 +69,22 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
                             return $bodyOut;
                             break;
 
-                        case 'mov':
+                        case 'datos':
+                            $bodyOut = $mysql->listarCols(
+                                "idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos",
+                                "traza
+                                JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
+                                JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
+                                JOIN seguro on seguro.idseguro= traza.seguro_idseguro
+                                WHERE traza.idtraza = $idTraza"
+                            );
 
+                            //$bodyOut = $mysql->listar("pieza WHERE traza_idtraza = $idTraza");
+
+                            return $bodyOut;
+                            break;
+
+                        case 'mov':
                             $bodyOut = $mysql->listarCols(
                                 "usuario.usuario_nombre, usuario.usuario_apellido, chSector.chSector, movimiento_fecha, movimiento_hora ",
                                 "movimiento
