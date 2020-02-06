@@ -71,9 +71,10 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
 
                         case 'datos':
                             $bodyOut = $mysql->listarCols(
-                                "idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos",
+                                "idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos, vhTipo_img, vhTipo_img_all",
                                 "traza
                                 JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
+                                JOIN vhTipo on vhTipo.idvhTipo = vhModelo.vhTipo_idvhTipo 
                                 JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
                                 JOIN seguro on seguro.idseguro= traza.seguro_idseguro
                                 WHERE traza.idtraza = $idTraza"
@@ -127,7 +128,7 @@ $app->post('/traza', function (Request $request, Response $response, array $args
 
         $bodyIn = $request->getParsedBody();
 
-        if (@$bodyIn['seguimiento']
+        if (   @$bodyIn['seguimiento']
             && @$bodyIn['seguimiento']['modelo']
             && @$bodyIn['seguimiento']['patente']
             && @$bodyIn['seguimiento']['seguro']
@@ -137,15 +138,16 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             && @$bodyIn['seguimiento']['observaciones']
             && @$bodyIn['seguimiento']['idUsuario']
             && @$bodyIn['seguimiento']['piezas']
-            && @$bodyIn['seguimiento']['esperandoRepuestos']
         ) {
 
             $orden = intval($bodyIn['seguimiento']['orden']);
+
             $seguro = intval($bodyIn['seguimiento']['seguro']);
             $modelo = intval($bodyIn['seguimiento']['modelo']);
-            $esperandoRep = intval($bodyIn['seguimiento']['esperandoRepuestos']);
             $patente = $filtro->stringFilter($bodyIn['seguimiento']['patente']);
+
             $fecha_entrega = $filtro->stringFilter($bodyIn['seguimiento']['fechaSalidaAprox']);
+            $esperandoRep = intval($bodyIn['seguimiento']['esperandoRepuestos']);
 
             $idUsuario = intval($bodyIn['seguimiento']['idUsuario']);
             $fechaIngreso = $filtro->stringFilter($bodyIn['seguimiento']['fechaIngreso']);
@@ -153,6 +155,8 @@ $app->post('/traza', function (Request $request, Response $response, array $args
             $piezas = $bodyIn['seguimiento']['piezas'];
 
             $mysql = new mysql;
+
+            $bodyOut = ['Recibio todas las variables'];
 
             if ($mysql->conectar()) {
                 if (empty($mysql->listar("orden WHERE idorden = $orden"))) {
