@@ -18,9 +18,8 @@ $app->post('/loginTEST', function (Request $request, Response $response, array $
 
     $func = function ($request) {
         $bodyIn = $request->getParsedBody();
-        
-        
-         try {
+
+        try {
             $DB = new mysqli(
                 'localhost',
                 'parisaut_orionusr',
@@ -30,16 +29,14 @@ $app->post('/loginTEST', function (Request $request, Response $response, array $
             $DB->set_charset("utf8");
 
             if (true) {
-                
-                
+
                 $query = "select * FROM parisaut_chapa.usuario WHERE usuario_username = 'sistemas@parisautos.com.ar' LIMIT 1 ";
                 //echo $query;
                 $resultado = $DB->query($query);
                 //echo ("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
-          
+
                 $bodyOut = $resultado->fetch_assoc();
 
-        
                 return $bodyOut;
             }
             $bodyOut = $bodyIn;
@@ -78,9 +75,9 @@ $app->post('/login', function (Request $request, Response $response, array $args
         $mysql = new mysql;
         if ($mysql->conectar() && $savedUserData = $mysql->buscar('usuario', "usuario_username = '$userName'")) {
 
-            // $password = 'aleja3022';
-            // $newPass = password_hash($password, PASSWORD_BCRYPT);
-            // $bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 2");
+            //  $password = 'quiter2020';
+            //  $newPass = password_hash($password, PASSWORD_BCRYPT);
+            //  $bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 3");
 
             if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
                 $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
