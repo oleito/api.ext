@@ -74,7 +74,7 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
                                 "idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos, vhTipo_img, vhTipo_img_all",
                                 "traza
                                 JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
-                                JOIN vhTipo on vhTipo.idvhTipo = vhModelo.vhTipo_idvhTipo 
+                                JOIN vhTipo on vhTipo.idvhTipo = vhModelo.vhTipo_idvhTipo
                                 JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
                                 JOIN seguro on seguro.idseguro= traza.seguro_idseguro
                                 WHERE traza.idtraza = $idTraza"
@@ -128,7 +128,7 @@ $app->post('/traza', function (Request $request, Response $response, array $args
 
         $bodyIn = $request->getParsedBody();
 
-        if (   @$bodyIn['seguimiento']
+        if (@$bodyIn['seguimiento']
             && @$bodyIn['seguimiento']['modelo']
             && @$bodyIn['seguimiento']['patente']
             && @$bodyIn['seguimiento']['seguro']
@@ -239,11 +239,7 @@ $app->put('/traza/avanzar', function (Request $request, Response $response, arra
     return $peticiones->conTokenGet($func($request, $args), true, null);
 
 });
-// SELECT *
-// FROM `movimiento`
-// WHERE traza_idtraza = 23
-// ORDER BY idmovimiento DESC
-// LIMIT 1
+
 $app->put('/traza', function (Request $request, Response $response, array $args) {
     return $response
         ->withHeader('Content-type', 'application/json')
@@ -254,4 +250,120 @@ $app->delete('/traza', function (Request $request, Response $response, array $ar
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(405);
+});
+
+/** For APP **/
+$app->get('/app/traza', function (Request $request, Response $response, array $args) {
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request) {
+        $bodyOut = [];
+        $arraySalida = [];
+
+        try {
+            $mysql = new mysql;
+            $mysql->conectar();
+
+            $seguimientos = $mysql->listarCols(
+                'idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos',
+                'traza
+                JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
+                JOIN vhMarca on vhMarca.idvhMarca= vhModelo.vhMarca_idvhMarca
+                JOIN seguro on seguro.idseguro= traza.seguro_idseguro'
+            );
+
+            foreach ($seguimientos as $key => $value) {
+                // valor del ID de traza
+                $idTraza = $value['idtraza'];
+                $ultimoMovimiento = $mysql->listarCols(
+                    'movimiento_fecha, movimiento_hora, chSector',
+                    "movimiento
+                    JOIN chSector ON movimiento.chSector_idchSector_destino = chSector.idchSector
+                    WHERE movimiento.traza_idtraza = $idTraza
+                    ORDER BY movimiento.idmovimiento DESC LIMIT 1"
+                );
+
+                $filaConcatenada = array_merge($value, $ultimoMovimiento[0]);
+
+                array_push($bodyOut, $filaConcatenada);
+            }
+
+            $arrayIngreso = [];
+            $arrayIngreso['time'] = 'Ingreso';
+            $arrayIngreso['sessions'] = [];
+
+            $arrayDesarme = [];
+            $arrayDesarme['time'] = 'Desarme';
+            $arrayDesarme['sessions'] = [];
+
+            $arrayReparacion = [];
+            $arrayReparacion['time'] = 'Reparacion';
+            $arrayReparacion['sessions'] = [];
+
+            $arrayPreparacion = [];
+            $arrayPreparacion['time'] = 'Preparacion';
+            $arrayPreparacion['sessions'] = [];
+
+            $arrayPintura = [];
+            $arrayPintura['time'] = 'Pintura';
+            $arrayPintura['sessions'] = [];
+
+            $arrayArmado = [];
+            $arrayArmado['time'] = 'Armado';
+            $arrayArmado['sessions'] = [];
+
+            $arrayEstetica = [];
+            $arrayEstetica['time'] = 'Estetica';
+            $arrayEstetica['sessions'] = [];
+
+            foreach ($bodyOut as $clave => $valor) {
+                switch ($valor['chSector']) {
+
+                    case 'Ingreso':
+                        array_push($arrayIngreso['sessions'], $valor);
+                        break;
+
+                    case 'Desarme':
+                        array_push($arrayDesarme['sessions'], $valor);
+                        break;
+
+                    case 'Reparacion':
+                        array_push($arrayReparacion['sessions'], $valor);
+                        break;
+
+                    case 'Preparacion':
+                        array_push($arrayPreparacion['sessions'], $valor);
+                        break;
+
+                    case 'Pintura':
+                        array_push($arrayPintura['sessions'], $valor);
+                        break;
+
+                    case 'Armado':
+                        array_push($arrayArmado['sessions'], $valor);
+                        break;
+
+                    case 'Estetica':
+                        array_push($arrayEstetica['sessions'], $valor);
+                        break;
+
+                    default:
+                        # code...
+                        break;
+                }
+            }
+            array_push($arraySalida,
+                $arrayIngreso, $arrayDesarme, $arrayPreparacion,
+                $arrayReparacion, $arrayPintura, $arrayArmado,
+                $arrayEstetica
+            );
+
+            return $arraySalida;
+
+        } catch (\Throwable $th) {
+            return false;
+        }
+    };
+    return $peticiones->conTokenGet($func($request), true, null);
 });
