@@ -71,7 +71,7 @@ $app->get('/traza/{cat}', function (Request $request, Response $response, array 
 
                         case 'datos':
                             $bodyOut = $mysql->listarCols(
-                                "idtraza,orden_idorden,traza_patente,vhModelo,vhMarca,seguro, traza_repuestos, vhTipo_img, vhTipo_img_all",
+                                "idtraza,orden_idorden,traza_patente,traza_observaciones,vhModelo,vhMarca,seguro, traza_repuestos, vhTipo_img, vhTipo_img_all",
                                 "traza
                                 JOIN vhModelo on traza.vhModelo_idvhModelo= vhModelo.idvhModelo
                                 JOIN vhTipo on vhTipo.idvhTipo = vhModelo.vhTipo_idvhTipo
@@ -148,6 +148,7 @@ $app->post('/traza', function (Request $request, Response $response, array $args
 
             $fecha_entrega = $filtro->stringFilter($bodyIn['seguimiento']['fechaSalidaAprox']);
             $esperandoRep = intval($bodyIn['seguimiento']['esperandoRepuestos']);
+            $observaciones = intval($bodyIn['seguimiento']['observaciones']);
 
             $idUsuario = intval($bodyIn['seguimiento']['idUsuario']);
             $fechaIngreso = $filtro->stringFilter($bodyIn['seguimiento']['fechaIngreso']);
@@ -165,7 +166,7 @@ $app->post('/traza', function (Request $request, Response $response, array $args
                     $mysql->insertar("orden", "'$orden'");
 
                     /** Inserta la traza */
-                    $mysql->insertar("traza", "NULL, '$seguro', '$orden', '$modelo', '$patente', '$fecha_entrega', '$esperandoRep'");
+                    $mysql->insertar("traza", "NULL, '$seguro', '$orden', '$modelo', '$patente', '$fecha_entrega', '$esperandoRep', '$observaciones'");
                     $lastTrazaId = $mysql->getLastId();
 
                     /** Inserta el Movimiento */
@@ -192,6 +193,26 @@ $app->post('/traza', function (Request $request, Response $response, array $args
     return $peticiones->conTokenPost($func($request), true, null);
 });
 
+$app->post('/traza/{id}/foto', function (Request $request, Response $response, array $args) {
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request, $args) {
+        $filtro = new filtro;
+
+        $bodyIn = [];
+        $bodyOut = [''];
+
+        $bodyIn = $request->getParsedBody();
+        $bodyOut = $bodyIn;
+        $bodyOut['ID'] = $args['id'];
+        $bodyOut['param'] = $params['sentido'];
+
+        return $bodyOut;
+    };
+    return $peticiones->conTokenPost($func($request, $args), true, null);
+});
+
 $app->put('/traza/avanzar', function (Request $request, Response $response, array $args) {$peticiones = new peticion($request, $response, $args);
 
     $func = function ($request, $args) {
@@ -200,6 +221,22 @@ $app->put('/traza/avanzar', function (Request $request, Response $response, arra
         $bodyOut = [];
 
         if ($params = $request->getQueryParams()) {
+
+            /* */
+            $bodyIn = $request->getParsedBody();
+
+            if (@$bodyIn['avanzar']
+                && @$bodyIn['avanzar']['avanzarFecha']
+                && @$bodyIn['avanzar']['avanzarHora']
+            ) {
+                $fecha = $bodyIn['avanzar']['avanzarFecha'];
+                $hora = $bodyIn['avanzar']['avanzarHora'];
+            } else {
+                $fecha = date('Y-m-d'); // "2019-12-01",
+                $hora = date('H:i:s'); // '11:30:00'
+            }
+            /* */
+
             if ($params['idtraza'] && $params['idusuario']) {
                 try {
                     $idtraza = $params['idtraza'];
@@ -212,9 +249,6 @@ $app->put('/traza/avanzar', function (Request $request, Response $response, arra
                                                 LIMIT 1");
                         $ultimoSector = (int) $aux[0]['chSector_idchSector_destino'];
                         $nuevoSector = $ultimoSector + 1;
-
-                        $fecha = date('Y-m-d'); // "2019-12-01",
-                        $hora = date('H:i:s'); // '11:30:00'
 
                         /** Inserta el Movimiento */
                         if ($mysql->insertar("movimiento", "NULL, '$idtraza', '$idusuario', '$nuevoSector', '$fecha', '$hora'")) {

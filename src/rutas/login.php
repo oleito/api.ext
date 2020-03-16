@@ -75,9 +75,9 @@ $app->post('/login', function (Request $request, Response $response, array $args
         $mysql = new mysql;
         if ($mysql->conectar() && $savedUserData = $mysql->buscar('usuario', "usuario_username = '$userName'")) {
 
-            //   $password = 'taller2020';
-            //   $newPass = password_hash($password, PASSWORD_BCRYPT);
-            //   $bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 4");
+            // $password = 'bubu2020';
+            // $newPass = password_hash($password, PASSWORD_BCRYPT);
+            // $bodyOut['update'] = $mysql->actualizar("usuario", "usuario_password = '$newPass'", "idusuario = 5");
 
             if ($savedUserData[0]['usuario_password'] && password_verify($userPassword, $savedUserData[0]['usuario_password'])) {
                 $GLOBALS['usuario_nombre'] = $savedUserData[0]['usuario_nombre'];
