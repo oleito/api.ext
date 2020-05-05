@@ -192,6 +192,39 @@ $app->post('/traza', function (Request $request, Response $response, array $args
     };
     return $peticiones->conTokenPost($func($request), true, null);
 });
+$app->get('/traza/{id}/foto', function (Request $request, Response $response, array $args) {
+
+    $peticiones = new peticion($request, $response, $args);
+
+    $func = function ($request, $args) {
+        $filtro = new filtro;
+
+        $bodyIn = [];
+        $bodyOut = ['no hay contenido'];
+        if (!empty($args['id'])) {
+            $idTraza = $args['id'];
+            $mysql = new mysql;
+            if ($mysql->conectar()) {
+                $bodyTemp = $mysql->listarCols(
+                    "*",
+                    "vhFotos WHERE traza_idtraza = $idTraza"
+                );
+                if (!empty($bodyTemp) > 0) {
+                    $bodyOut=[];
+                    foreach ($bodyTemp as $key => $value) {
+                        $value['vhFotos_url'] = 'http://localhost/Proyectos/api.ext/imagenes/' . $value['vhFotos_url'];
+                        array_push($bodyOut, $value);
+                    }
+                    return $bodyOut;
+                }
+            }
+        }
+
+        return $bodyOut;
+
+    };
+    return $peticiones->conTokenPost($func($request, $args), true, null);
+});
 
 $app->post('/traza/{id}/foto', function (Request $request, Response $response, array $args) {
 
@@ -202,13 +235,33 @@ $app->post('/traza/{id}/foto', function (Request $request, Response $response, a
 
         $bodyIn = [];
         $bodyOut = [''];
-
         $bodyIn = $request->getParsedBody();
-        $bodyOut = $bodyIn;
-        $bodyOut['ID'] = $args['id'];
-        $bodyOut['param'] = $params['sentido'];
+        if (!empty($bodyIn) && !empty($args['id'])) {
+            $idTraza = $args['id'];
+            $mysql = new mysql;
+            define('UPLOAD_DIR', '../imagenes/');
+            foreach ($bodyIn as $key => $value) {
 
+                $img = str_replace('data:image/jpeg;base64,', '', $value['data']);
+                $img = str_replace(' ', '+', $img);
+                $data = base64_decode($img);
+                $filename = $idTraza . '-' . uniqid() . '.jpg';
+                $file = UPLOAD_DIR . $filename;
+                $success = file_put_contents($file, $data);
+
+                /* guardar URL de archivo en la base de datos. */
+
+                //INSERT INTO `vhFotos` (`idvhFotos`, `traza_idtraza`, `vhFotos_url`, `vhFotos_io`) VALUES (NULL, '39', 'asdsdasd', '1');
+                if ($mysql->conectar()) {
+                    $mysql->insertar("vhFotos", "NULL, '" . $idTraza . "', '" . $filename . "', '1'");
+                }
+
+            }
+        }
+
+        $bodyOut = $bodyIn;
         return $bodyOut;
+
     };
     return $peticiones->conTokenPost($func($request, $args), true, null);
 });

@@ -17,17 +17,10 @@ require '../src/classes/peticion.php';
 require '../src/classes/mysql.php';
 require '../src/classes/filtro.php';
 $config['displayErrorDetails'] = true;
-$config['addContentLengthHeader'] = false;
+$config['addContentLengthHeader'] = true;
 
-/*
-$config['db']['host']   = 'localhost';
-$config['db']['user']   = 'user';
-$config['db']['pass']   = 'password';
-$config['db']['dbname'] = 'exampleapp';
-(['settings' => $config])
- */
 
-$app = new \Slim\App;
+$app = new \Slim\App(['settings' => $config]);
 
 ################### RAIZ ###########################
 

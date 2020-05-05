@@ -66,7 +66,10 @@ class mysql
     public function insertar($tabla, $datos) #"usuario", "null, 'usr@dom'"
 
     {
-        if ($this->mysqli->query("INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)")) {
+        $sql = "INSERT INTO parisaut_chapa." . $tabla . " VALUES ($datos)";
+        // print_r($sql);
+
+        if ($this->mysqli->query($sql)) {
             $this->lastId = $this->mysqli->insert_id;
             return true;
         } else {
@@ -75,7 +78,8 @@ class mysql
         }
     }
 
-    public function getLastId(){
+    public function getLastId()
+    {
         return $this->lastId;
     }
 
@@ -89,11 +93,11 @@ class mysql
     public function buscar($tabla, $condicion) #'usuario', 'idusuario > 0'
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("SELECT * FROM parisaut_chapa." . $tabla . " WHERE $condicion LIMIT 1");
         //echo ("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
-            while($fila=$resultado->fetch_assoc()) {
+            while ($fila = $resultado->fetch_assoc()) {
                 array_push($res, $fila);
             }
             return $res;
@@ -111,10 +115,10 @@ class mysql
     public function buscarUnitario($tabla, $condicion) #'usuario', 'idusuario > 0'
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("SELECT * FROM $tabla WHERE $condicion LIMIT 1");
         if ($resultado) {
-            while($fila=$resultado->fetch_assoc()) {
+            while ($fila = $resultado->fetch_assoc()) {
                 array_push($res, $fila);
             }
             return $res;
@@ -131,10 +135,10 @@ class mysql
     public function listar($tabla) //"usuarios","1"
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("SELECT * FROM $tabla");
         if ($resultado) {
-            while($fila=$resultado->fetch_assoc()) {
+            while ($fila = $resultado->fetch_assoc()) {
                 array_push($res, $fila);
             }
             return $res;
@@ -144,10 +148,10 @@ class mysql
     public function listarCols($cols, $tabla) //"usuarios","1"
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("SELECT $cols FROM $tabla");
         if ($resultado) {
-            while($fila=$resultado->fetch_assoc()) {
+            while ($fila = $resultado->fetch_assoc()) {
                 array_push($res, $fila);
             }
             return $res;
@@ -166,7 +170,7 @@ class mysql
     public function actualizar($tabla, $campos, $condicion) #"usuario", " usuario_username = 'j.q@p.com.ar', ","idusuario = 4"
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("UPDATE $tabla SET $campos WHERE $condicion");
         //echo ("UPDATE $tabla SET $campos WHERE $condicion");
         if ($resultado) {
@@ -185,7 +189,7 @@ class mysql
     public function borrar($tabla, $condicion) #'usuario', 'idusuario = 3'
 
     {
-        $res=[];
+        $res = [];
         $resultado = $this->mysqli->query("DELETE FROM $tabla WHERE $condicion") or die($this->mysqli->error);
         if ($resultado) {
             return true;
